@@ -35,14 +35,18 @@ def getPages(name):
     return url
 
 #获取页面中每个图书的链接
-def getBookPage(url):
-    strurl = requests.get(url, headers=headers)
-
-    seletor = etree.HTML(strurl.text)
-
+def getBookPage(url,number):
     urls = []
-    for i in range(1, 21, 1):
-        urls.append(seletor.xpath('//*[@id="subject_list"]/ul/li[1]/div[2]/h2/a/@href'))
+    for i in range(0,number,20):
+        url = url + '?start={}&type=T'.format(i)
+        print(url)
+        strurl = requests.get(url, headers=headers)
+        seletor = etree.HTML(strurl.text)
+        for j in range(1, 21, 1):
+            xpath = '//*[@id="subject_list"]/ul/li[{}]/div[2]/h2/a/@href'.format(j)
+            urls.append(seletor.xpath(xpath))
+            if(len(urls) >= number):
+                break
     return urls
 
 #对爬取的文本进行正则判定
@@ -54,6 +58,13 @@ def getRequestRes(pattern_text, html):
     else:
         return 'NULL'
 
+#获取图书页面的html代码
+def getHtml(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36'}
+    strurl = requests.get(url, headers=headers)
+
+    return strurl.text
 #获取图书的信息
 def getBookPageInformation(html):
     book_info = {}
@@ -122,10 +133,13 @@ if __name__ == '__main__':
 
     for i in tags:
         url = getPages(i)
-        bookUrls = getBookPage(url)
-        print(bookUrls[6])
-        # for j in range(len(bookUrls)):
-        #     bookUrl.append(bookUrls)
-        if(len(bookUrls)>= 10):
+        bookUrls = getBookPage(url,30)
+        for j in bookUrls:
+            bookUrl.append(j[0])
+        if(len(bookUrl) >= 30):
             break
-        print(bookUrl)
+    # for i in bookUrl:
+    #     BookUrl = str(i)
+    #     html = getHtml(BookUrl)
+    #     info = getBookPageInformation(html)
+    print(bookUrl)
