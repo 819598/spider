@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 import re
+import csv
+import time
+import random
 
 #开始标签，以豆瓣读书的首页开始
 #豆瓣上以tag来统计图书，每个图书都有其一个或多个图书
@@ -35,11 +38,10 @@ def getPages(name):
     return url
 
 #获取页面中每个图书的链接
-def getBookPage(url,number):
+def getBookPage(Url,number):
     urls = []
     for i in range(0,number,20):
-        url = url + '?start={}&type=T'.format(i)
-        print(url)
+        url = Url + '?start={}&type=T'.format(i)
         strurl = requests.get(url, headers=headers)
         seletor = etree.HTML(strurl.text)
         for j in range(1, 21, 1):
@@ -127,19 +129,38 @@ def getBsRes(selector, html):
     else:
         return res[0].string
 
+#写入到csv文件中
+def writeToCsv(info):
+    headers = ['Book_name', 'Author', 'publisher', 'publish_time', 'ISBN', 'author_intro', 'Score', 'commments',
+               '5_stars', '4_stars', '3_stars', '2_stars', '1_stars']
+    f = open('file.csv', 'w', encoding='utf-8')
+    csv_writer = csv.DictWriter(f, headers)
+    csv_writer.writeheader()
+    for i in info:
+        csv_writer.writerow(i)
+    f.close()
+
 if __name__ == '__main__':
+    m = 0
+    numberBooks = 100
     tags = getTags(url)
     bookUrl = []
-
+    infos = []
     for i in tags:
         url = getPages(i)
-        bookUrls = getBookPage(url,30)
+        bookUrls = getBookPage(url,numberBooks)
         for j in bookUrls:
             bookUrl.append(j[0])
-        if(len(bookUrl) >= 30):
+        if(len(bookUrl) >= numberBooks):
             break
-    # for i in bookUrl:
-    #     BookUrl = str(i)
-    #     html = getHtml(BookUrl)
-    #     info = getBookPageInformation(html)
-    print(bookUrl)
+    for i in bookUrl:
+        info = {}
+        BookUrl = str(i)
+        times = random.random() * 3
+        time.sleep(times)
+        html = getHtml(BookUrl)
+        info = getBookPageInformation(html)
+        infos.append(info)
+        m += 1
+        print(m)
+    writeToCsv(infos)
