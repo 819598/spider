@@ -1,2 +1,2 @@
-for i in range(1,21,1):
-    print(i)
+a = input("请输入书名:")
+print(a == 'NULL')
