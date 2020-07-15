@@ -46,7 +46,7 @@ def getBookPage(Url,number):
         seletor = etree.HTML(strurl.text)
         for j in range(1, 21, 1):
             xpath = '//*[@id="subject_list"]/ul/li[{}]/div[2]/h2/a/@href'.format(j)
-            urls.append(seletor.xpath(xpath))
+            a = seletor.xpath(xpath)
             if(len(urls) >= number):
                 break
     return urls
