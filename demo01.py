@@ -67,6 +67,7 @@ def getHtml(url):
     strurl = requests.get(url, headers=headers)
 
     return strurl.text
+
 #获取图书的信息
 def getBookPageInformation(html):
     book_info = {}
@@ -90,6 +91,9 @@ def getBookPageInformation(html):
 
     pages = getRequestRes(u'页数:</span>(.*?)<br/>',html)
     book_info['pages'] = pages
+
+    price = getRequestRes(u'定价:</span>(.*?)<br/>',html)
+    book_info['price'] = price
 
     author_intro = getBsRes('#content > div > div.article > div.related_info > div:nth-child(4) > div > div > p', html)
     book_info['author_intro'] = author_intro
@@ -134,7 +138,7 @@ def getBsRes(selector, html):
 
 #写入到csv文件中
 def writeToCsv(info):
-    headers = ['Book_name', 'Author', 'publisher', 'publish_time', 'pages', 'ISBN', 'author_intro', 'Score', 'commments',
+    headers = ['Book_name', 'Author', 'publisher', 'publish_time', 'pages', 'price', 'ISBN', 'author_intro', 'Score', 'commments',
                '5_stars', '4_stars', '3_stars', '2_stars', '1_stars']
     f = open('file.csv', 'w', encoding='utf-8')
     csv_writer = csv.DictWriter(f, headers)
@@ -145,7 +149,7 @@ def writeToCsv(info):
 
 if __name__ == '__main__':
     m = 0
-    numberBooks = 10
+    numberBooks = 100
     tags = getTags(url)
     bookUrl = []
     infos = []
@@ -159,7 +163,7 @@ if __name__ == '__main__':
     for i in bookUrl:
         info = {}
         BookUrl = str(i)
-        times = random.random() * 3
+        times = random.random() * 2
         time.sleep(times)
         html = getHtml(BookUrl)
         info = getBookPageInformation(html)
